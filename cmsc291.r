@@ -4,45 +4,31 @@ require(plyr)
 require(neuralnet)
 library(plyr)
 library(neuralnet)
-data = read.csv("data.csv", header = TRUE)
+data = read.csv("data_new.csv", header = TRUE)
+data.numeric = data.frame(sapply(data, function(x) as.numeric(as.character(x))))
 
-data$FILE = NULL
-data$BMT = NULL
-data$REPLICATE = NULL
-data$CLASS2 = NULL
+data.train = data.numeric[,"Dataset"] == 0
+data.valid = data.numeric[,"Dataset"] == 1
 
-data.train = data[data[,'DATA.SET'] == "Training",]
-data.valid = data[data[,'DATA.SET'] == "Validation",]
-data.cross = data[data[,'DATA.SET'] == "Cross-validation",]
+data.numeric$Dataset = NULL
 
-data$DATA.SET = NULL
-data.train$DATA.SET = NULL
-data.valid$DATA.SET = NULL
-data.cross$DATA.SET = NULL
-
-factors = as.factor(unique(data$CLASS))
-data$CLASS = mapvalues(x = data$CLASS, from=factors, to=as.numeric(factors))
-data = as.data.frame(data.matrix(data))
-
-max = apply(data, 2, max)
-min = apply(data, 2, min)
-
-data.scaled = as.data.frame(scale(data, center = min, scale = max - min))
-data.NNtrain = data.scaled[as.numeric(row.names(data.train)),]
-data.NNtest = data.scaled[-as.numeric(row.names(data.train)),]
+max = apply(data.numeric, 2, max)
+min = apply(data.numeric, 2, min)
+ 
+data.scaled = as.data.frame(scale(data.numeric, center = min, scale = max - min))
+data.NNtrain = data.scaled[data.train,]
+data.NNtest = data.scaled[-data.train,]
 
 mat = model.matrix(
-    ~ CLASS + C.LEVEL + M.LEVEL + VERTICES + CONNECTED.EDGES + WEDGE.COUNT +
-          CLAW.COUNT + MAX.DEGREE, 
+    ~ ID + Size + Volume + WedgeCount + ClawCount + MaxDegree + AveDeg + Fill,
     data = data.NNtrain
 )
 
 set.seed(2)
 NN = neuralnet(
-    CLASS ~ 
-        C.LEVEL + M.LEVEL + VERTICES + CONNECTED.EDGES + WEDGE.COUNT +
-        CLAW.COUNT + MAX.DEGREE,
+    ID ~ + Size + Volume + WedgeCount + ClawCount + MaxDegree + AveDeg + Fill,
     mat,
     hidden = c(5, 3),
+    linear.output = FALSE,
     stepmax = 1e+7
 )
