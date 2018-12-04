@@ -25,7 +25,7 @@
 # )
 
 set.seed(2)
-for (testcase in testcases[27:length(testcases)]) {
+for (testcase in testcases) {
   print(testcase[[1]])
   NN = neuralnet(
     ID ~ + Size + Volume + WedgeCount + ClawCount + MaxDegree + AveDeg + Fill,

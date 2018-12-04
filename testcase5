@@ -47,5 +47,10 @@ testcases = list(
     list(c(4, 2), '42.png', '42nn.png'),
     list(c(3, 3), '33.png', '33nn.png'),
     list(c(3, 2), '32.png', '32nn.png'),
-    list(c(2, 2), '22.png', '22nn.png')
+    list(c(2, 2), '22.png', '22nn.png'),
+    list(6, '6.png', '6nn.png'),
+    list(5, '5.png', '5nn.png'),
+    list(4, '4.png', '4nn.png'),
+    list(3, '3.png', '3nn.png'),
+    list(2, '2.png', '2nn.png')
 )
