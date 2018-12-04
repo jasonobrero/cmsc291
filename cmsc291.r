@@ -30,6 +30,7 @@ for (testcase in testcases) {
   NN = neuralnet(
     ID ~ + Size + Volume + WedgeCount + ClawCount + MaxDegree + AveDeg + Fill,
     mat,
+    algorithm = "sag",
     hidden = testcase[[1]],
     linear.output = FALSE,
     stepmax = 1e+7
