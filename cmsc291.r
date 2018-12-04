@@ -4,7 +4,6 @@ require(plyr)
 require(neuralnet)
 library(plyr)
 library(neuralnet)
-require("./testcases.r")
 data = read.csv("data_new.csv", header = TRUE)
 data.numeric = data.frame(sapply(data, function(x) as.numeric(as.character(x))))
 
@@ -26,6 +25,7 @@ mat = model.matrix(
 )
 
 set.seed(2)
+results = list()
 for (testcase in testcases) {
   print(testcase[[1]])
   NN = neuralnet(
@@ -35,6 +35,8 @@ for (testcase in testcases) {
     linear.output = FALSE,
     stepmax = 1e+7
   )
+  
+  results[[testcase[[3]]]] = NN
   
   predict_testNN = compute(NN, data.NNtest[c(1:7)])
   predict_testNN = (predict_testNN$net.result * (max(data.scaled$ID) - min(data.scaled$ID))) + min(data.scaled$ID)
