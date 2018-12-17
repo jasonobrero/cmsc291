@@ -31,9 +31,11 @@ for (testcase in testcases) {
   NN = neuralnet(
     ID ~ + Size + Volume + WedgeCount + ClawCount + MaxDegree + AveDeg + Fill,
     mat,
-    algorithm = "sag",
+    algorithm = "slr",
+    threshold = 0.05,
     hidden = testcase[[1]],
     linear.output = FALSE,
+    lifesign = "full",
     stepmax = 1e+8
   )
   
@@ -42,7 +44,35 @@ for (testcase in testcases) {
   predict_testNN = compute(NN, data.NNtest[c(1:7)])
   predict_testNN = (predict_testNN$net.result * (max(data.scaled$ID) - min(data.scaled$ID))) + min(data.scaled$ID)
   
-  png(testcase[[2]])
-  plot(data.NNtest$ID, predict_testNN, col = 'blue', pch = 16, ylab = "Predicted", xlab = "Real")
+  max = apply(data.numeric, 2, max)
+  min = apply(data.numeric, 2, min)
+  scale = within(data.NNtest, s.xdata <- scale(data.NNtest, center = min, scale = max - min))
+  scale = scale$s.xdata
+  
+  predict_testNN = as.data.frame(predict_testNN)
+  max_predict = apply(predict_testNN, 2, max)
+  min_predict = apply(predict_testNN, 2, min)
+  scale_predict = within(predict_testNN, s.predict <- scale(predict_testNN, center = min_predict, scale = max_predict - min_predict))
+  scale_predict = scale_predict$s.predict
+  
+  ydata = scale_predict * attr(scale, 'scaled:scale')[1] + attr(scale, 'scaled:center')[1]
+  #ydata = predict_testNN * attr(scale, 'scaled:scale')[1] + attr(scale, 'scaled:center')[1]
+  ydata = apply(ydata, 2, floor)
+  
+  confusion = (sum(data$ID[data.valid] == ydata) / length(ydata)) * 100
+  main = paste("Neural Network Test Set for ", as.character(testcase[[2]]), " Hidden Layers", sep = "")
+  sub = paste("Correct: ", confusion, "% ", "Incorrect: ", 100 - confusion, "%", sep = "")
+        
+  png(testcase[[3]])
+  #plot(data.scaled$ID[data.valid], predict_testNN, col = 'blue', pch = 16, ylab = "Predicted", xlab = "Real", main = main, sub = sub)
+  plot(data$ID[data.valid], ydata, col = 'blue', pch = 16, ylab = "Predicted", xlab = "Real", main = main, sub = sub)
   dev.off()
+}
+
+tc = 1
+for (testcase in testcases[c(1:38,40:length(testcases))]) {
+  png(testcase[[4]])
+  plot(results[[tc]], rep = "best")
+  dev.off()
+  tc = tc + 1
 }
