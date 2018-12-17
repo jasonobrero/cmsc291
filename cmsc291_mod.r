@@ -44,21 +44,20 @@ mat = model.matrix(
 
 set.seed(2)
 results = list()
-for (testcase in testcases[1:length(testcases)]) {
+for (testcase in testcases) {
   print(testcase[[1]])
   NN = neuralnet(
     formula.nn,
     mat,
-    lifesign = "minimal",
+    lifesign = "full",
     algorithm = "rprop+",
-    err.fct = "ce",
-    threshold = 0.03,
+    threshold = 0.08,
     hidden = testcase[[1]],
     linear.output = FALSE,
     stepmax = 1e+8
   )
 
-  results[[testcase[[3]]]] = NN
+  results[[testcase[[2]]]] = NN
 
   predict_testNN = compute(NN, data.NNtest[c(51:57)])
   predict_testNN = (predict_testNN$net.result * (max(data.scaled[data.valid,c(1:50)]) - min(data.scaled[data.valid,c(1:50)]))) + min(data.scaled[data.valid,c(1:50)])
@@ -68,7 +67,17 @@ for (testcase in testcases[1:length(testcases)]) {
   # ydat = as.numeric(colnames(predict_testNN)[max.col(predict_testNN, ties.method = "random")])
   ydat = apply(predict_testNN, 1, which.min)
 
-  png(testcase[[2]])
+  png(testcase[[3]])
   plot(xdat, ydat, col = 'blue', pch = 16, ylab = "Predicted", xlab = "Real")
   dev.off()
 }
+
+tc = 1
+for (testcase in testcases) {
+  png(testcase[[4]])
+  plot(results[[tc]], rep = "best")
+  dev.off()
+  tc = tc + 1
+}
+
+saveRDS(results, file = "neuralnets.rds")

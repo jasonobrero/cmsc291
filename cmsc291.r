@@ -76,3 +76,5 @@ for (testcase in testcases[c(1:38,40:length(testcases))]) {
   dev.off()
   tc = tc + 1
 }
+
+saveRDS(results, file = "neuralnets.rds")
